@@ -1,15 +1,20 @@
 const gulp = require('gulp');
 const del = require('del');
 const babel = require('gulp-babel');
+const htmlmin = require('gulp-htmlmin');
+const cleanCSS = require('gulp-clean-css');
 const uglify = require('gulp-uglify');
+const rename = require('gulp-rename');
+const sass = require('gulp-sass');
+const browserSync = require('browser-sync').create();
+const pug = require('gulp-pug');
 
-// gulp.task('clean', () =>{
-//     (async () => {
-//     const deletedPaths = await del(['temp/*.js', '!temp/unicorn.js']);
- 
-//     console.log('Deleted files and directories:\n', deletedPaths.join('\n'));
-// })();
-// });
+gulp.task('pug', () => {
+  return gulp
+    .src('source/**/*.pug')
+    .pipe(pug())
+    .pipe(gulp.dest('./dist/'));
+});
 
 gulp.task('clean', () => {
     return del(['./dist']);
@@ -20,13 +25,40 @@ gulp.task('babel', () =>
         .pipe(babel({
             presets: ['@babel/env']
         }))
-        .pipe(uglify())
-        .pipe(gulp.dest('dist'))
+        // .pipe(uglify())
+        .pipe(rename(function (path) {
+            return {
+                dirname: path.dirname,
+                basename: path.basename + '.min',
+                extname: '.js'
+            };
+        }))
+        .pipe(gulp.dest('dist/js'))
 );
 
-gulp.task('copyHTML', () =>
+gulp.task('minifyHtml', () =>
     gulp.src('source/*.html')
+        // .pipe(htmlmin({ collapseWhitespace: true }))
         .pipe(gulp.dest('dist'))
 );
 
-gulp.task('default', gulp.series('clean','copyHTML', 'babel'));
+gulp.task('sass', () => {
+    return gulp
+      .src('./source/scss/*.scss')
+      .pipe(sass().on('error', sass.logError))
+    //   .pipe(cleanCSS({ compatibility: 'ie8' }))
+      .pipe(gulp.dest('./dist/css'));
+});
+
+gulp.task('watch', () => {
+    browserSync.init({
+      server: {
+        baseDir: './dist',
+      },
+    });
+    gulp.watch('./source/*.html', gulp.series('minifyHtml'));
+    gulp.watch('./source/**/*.scss', gulp.series('sass'));
+});
+
+
+gulp.task('default', gulp.series('clean','minifyHtml', 'sass', 'babel', 'pug','watch'));
