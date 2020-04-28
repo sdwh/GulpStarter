@@ -1,19 +1,4 @@
 body {
   background-color: #3e3e3e;
-  color: linen;
+  color: white;
   font-size: 2em; }
-
-h1 {
-  text-align: center;
-  color: orangered; }
-
-a.btn {
-  width: 30px;
-  background-color: orange;
-  color: red;
-  padding: 6px;
-  border-radius: 6px;
-  text-decoration: none;
-  text-transform: uppercase; }
-  a.btn :hover {
-    color: green; }
