@@ -9,6 +9,7 @@ const sass = require('gulp-sass');
 const browserSync = require('browser-sync').create();
 const pug = require('gulp-pug');
 const concat = require('gulp-concat');
+const version = require('gulp-version-number');
 
 gulp.task('pug', () => {
   return gulp
@@ -61,6 +62,12 @@ gulp.task('bulma', () => {
     .pipe(gulp.dest('./dist/css/vendor/bulma'));
 });
 
+gulp.task('bulmaHelper', () => {
+  return gulp
+    .src('./node_modules/bulma-helpers/css/*.css')
+    .pipe(gulp.dest('./dist/css/vendor/bulma-helpers'));
+});
+
 gulp.task('watch', () => {
     browserSync.init({
       server: {
@@ -72,5 +79,22 @@ gulp.task('watch', () => {
     gulp.watch('./source/**/*.scss', gulp.series('sass'));
 });
 
-gulp.task('default', gulp.series('clean','minifyHtml', 'sass', 'babel', 'bulma', 'pug','watch'));
-gulp.task('pure', gulp.series('clean','minifyHtml', 'sass', 'babel', 'bulma', 'pug'));
+
+var versionConfig = {
+  value: '%TS%',
+  append: {
+    key: 'v',
+    to: ['css', 'js'],
+  },
+};
+
+gulp.task('version', () => {
+  return gulp.src('source/*.html')
+  .pipe(version(versionConfig))
+  .pipe(gulp.dest('dist'));
+});
+
+
+
+gulp.task('default', gulp.series('clean','minifyHtml', 'sass', 'babel', 'bulma', 'bulmaHelper','pug','watch'));
+gulp.task('pure', gulp.series('clean','minifyHtml', 'sass', 'babel', 'bulma', 'bulmaHelper','pug'));
