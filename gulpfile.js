@@ -10,6 +10,10 @@ const browserSync = require('browser-sync').create();
 const pug = require('gulp-pug');
 const concat = require('gulp-concat');
 const version = require('gulp-version-number');
+const parseArgs = require('minimist');
+const gulpif = require('gulp-if');
+
+const argv = parseArgs(process.argv.slice(2));
 
 gulp.task('pug', () => {
   return gulp
@@ -28,7 +32,7 @@ gulp.task('babel', () =>
         .pipe(babel({
             presets: ['@babel/env']
         }))
-        // .pipe(uglify())
+        .pipe(gulpif(argv.env === 'production', uglify()))
         .pipe(concat('all.js'))
         .pipe(rename(function (path) {
             return {
@@ -43,7 +47,7 @@ gulp.task('babel', () =>
 
 gulp.task('minifyHtml', () => 
     gulp.src('source/*.html')
-        // .pipe(htmlmin({ collapseWhitespace: true }))
+        .pipe(gulpif(argv.env === 'production', htmlmin({ collapseWhitespace: true })))
         .pipe(gulp.dest('dist'))
         .pipe(browserSync.stream())
 );
@@ -52,20 +56,20 @@ gulp.task('sass', () => {
     return gulp
       .src('./source/scss/*.scss')
       .pipe(sass().on('error', sass.logError))
-    //   .pipe(cleanCSS({ compatibility: 'ie8' }))
+      .pipe(gulpif(argv.env === 'production', cleanCSS({ compatibility: 'ie8' })))
       .pipe(gulp.dest('./dist/css'));
 });
 
 gulp.task('bulma', () => {
   return gulp
     .src('./node_modules/bulma/css/*.css')
-    .pipe(gulp.dest('./dist/css/vendor/bulma'));
+    .pipe(gulp.dest('./dist/vendor/bulma'));
 });
 
 gulp.task('bulmaHelper', () => {
   return gulp
     .src('./node_modules/bulma-helpers/css/*.css')
-    .pipe(gulp.dest('./dist/css/vendor/bulma-helpers'));
+    .pipe(gulp.dest('./dist/vendor/bulma-helpers'));
 });
 
 gulp.task('watch', () => {
@@ -94,7 +98,10 @@ gulp.task('version', () => {
   .pipe(gulp.dest('dist'));
 });
 
-
+// gulp 
+// gulp pure
+// gulp --env production
+// gulp pure --env production
 
 gulp.task('default', gulp.series('clean','minifyHtml', 'sass', 'babel', 'bulma', 'bulmaHelper','pug','watch'));
 gulp.task('pure', gulp.series('clean','minifyHtml', 'sass', 'babel', 'bulma', 'bulmaHelper','pug'));
