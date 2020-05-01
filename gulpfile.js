@@ -12,8 +12,19 @@ const concat = require('gulp-concat');
 const version = require('gulp-version-number');
 const parseArgs = require('minimist');
 const gulpif = require('gulp-if');
+const imagemin = require('gulp-imagemin');
+const merge = require("merge-stream");
 
 const argv = parseArgs(process.argv.slice(2));
+
+gulp.task('clean', () => {
+    return del(['./dist']);
+});
+
+
+/***********************************************************
+HTML
+************************************************************/
 
 gulp.task('pug', () => {
   return gulp
@@ -23,9 +34,28 @@ gulp.task('pug', () => {
     .pipe(browserSync.stream())
 });
 
-gulp.task('clean', () => {
-    return del(['./dist']);
+gulp.task('minifyHtml', () => 
+    gulp.src('source/*.html')
+        .pipe(gulpif(argv.env === 'production', htmlmin({ collapseWhitespace: true })))
+        .pipe(gulp.dest('dist'))
+        .pipe(browserSync.stream())
+);
+
+/***********************************************************
+CSS
+************************************************************/
+
+gulp.task('sass', () => {
+  return gulp
+    .src('./source/scss/*.scss')
+    .pipe(sass().on('error', sass.logError))
+    .pipe(gulpif(argv.env === 'production', cleanCSS({ compatibility: 'ie8' })))
+    .pipe(gulp.dest('./dist/css'));
 });
+
+/***********************************************************
+JavaScript
+************************************************************/
 
 gulp.task('babel', () =>
     gulp.src('source/js/*.js')
@@ -45,44 +75,9 @@ gulp.task('babel', () =>
         .pipe(browserSync.stream())
 );
 
-gulp.task('minifyHtml', () => 
-    gulp.src('source/*.html')
-        .pipe(gulpif(argv.env === 'production', htmlmin({ collapseWhitespace: true })))
-        .pipe(gulp.dest('dist'))
-        .pipe(browserSync.stream())
-);
-
-gulp.task('sass', () => {
-    return gulp
-      .src('./source/scss/*.scss')
-      .pipe(sass().on('error', sass.logError))
-      .pipe(gulpif(argv.env === 'production', cleanCSS({ compatibility: 'ie8' })))
-      .pipe(gulp.dest('./dist/css'));
-});
-
-gulp.task('bulma', () => {
-  return gulp
-    .src('./node_modules/bulma/css/*.css')
-    .pipe(gulp.dest('./dist/vendor/bulma'));
-});
-
-gulp.task('bulmaHelper', () => {
-  return gulp
-    .src('./node_modules/bulma-helpers/css/*.css')
-    .pipe(gulp.dest('./dist/vendor/bulma-helpers'));
-});
-
-gulp.task('watch', () => {
-    browserSync.init({
-      server: {
-        baseDir: './dist',
-      },
-    });
-    gulp.watch('./source/*.html', gulp.series('minifyHtml'));
-    gulp.watch('./source/**/*.pug', gulp.series('pug'));
-    gulp.watch('./source/**/*.scss', gulp.series('sass'));
-});
-
+/***********************************************************
+Misc
+************************************************************/
 
 var versionConfig = {
   value: '%TS%',
@@ -98,10 +93,59 @@ gulp.task('version', () => {
   .pipe(gulp.dest('dist'));
 });
 
+gulp.task('imagemin', () => {
+  return gulp.src('assets/img/*')
+        .pipe(imagemin())
+        .pipe(gulp.dest('dist/images'))
+});
+
+/***********************************************************
+Vedors Management
+************************************************************/
+
+gulp.task('vendors', () => {
+  return merge([
+    //bulma
+    gulp.src('./node_modules/bulma/css/*.css')
+    .pipe(gulp.dest('./dist/vendor/bulma')),
+    
+    //bulma-helpers
+    gulp.src('./node_modules/bulma-helpers/css/*.css')
+    .pipe(gulp.dest('./dist/vendor/bulma-helpers'))
+  ])
+});
+
+/***********************************************************
+Build
+************************************************************/
+
+gulp.task('watch', () => {
+    browserSync.init({
+      server: {
+        baseDir: './dist',
+      },
+    });
+    gulp.watch('./source/*.html', gulp.series('minifyHtml'));
+    gulp.watch('./source/**/*.pug', gulp.series('pug'));
+    gulp.watch('./source/**/*.scss', gulp.series('sass'));
+});
+
 // gulp 
 // gulp pure
 // gulp --env production
 // gulp pure --env production
 
-gulp.task('default', gulp.series('clean','minifyHtml', 'sass', 'babel', 'bulma', 'bulmaHelper','pug','watch'));
-gulp.task('pure', gulp.series('clean','minifyHtml', 'sass', 'babel', 'bulma', 'bulmaHelper','pug'));
+gulp.task('pure', gulp.series(
+  'clean',
+  'minifyHtml',
+  'sass',
+  'babel',
+  'vendors',
+  'pug',
+  'imagemin'
+));
+
+gulp.task('default', gulp.series(
+  'pure',
+  'watch'
+));
