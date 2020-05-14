@@ -1,12 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gulp Starter Template</title>
-    <link rel="stylesheet" href="./vendor/bulma/bulma.css">
-    <link rel="stylesheet" href="./vendor/bulma-helpers/bulma-helpers.css">
-</head><body>
+<%- include('head'); -%>
+<body>
     
     <div class="container has-margin-top-30">
         <h1 class="title is-1 has-text-centered">Gulp Starter Template</h1>
@@ -29,68 +24,35 @@
 
         <h3 class="title is-3">Variables</h1>
         <p> 
-             
+            <%  var msg = "hello, world!" %> 
             <div>
-                hello, world! 
+                <%= msg %> 
             </div>
         </p>
 
         <h3 class="title is-3">For loop and lodash</h1>
             <p> 
                 <div>
-                     
+                    <% 
+                        var data = lodash.filter(
+                            lodash.range(1, 15),
+                            x => x >= 5
+                        );
+                    %> 
 
                     <ol>
-                    
+                    <% data.forEach(element => { %>
                         <li>
-                            5 / 5 
+                            <%= element %> / <%= lodash.random(1, 6) %> 
                         </li>
-                    
-                        <li>
-                            6 / 1 
-                        </li>
-                    
-                        <li>
-                            7 / 2 
-                        </li>
-                    
-                        <li>
-                            8 / 4 
-                        </li>
-                    
-                        <li>
-                            9 / 5 
-                        </li>
-                    
-                        <li>
-                            10 / 4 
-                        </li>
-                    
-                        <li>
-                            11 / 5 
-                        </li>
-                    
-                        <li>
-                            12 / 2 
-                        </li>
-                    
-                        <li>
-                            13 / 2 
-                        </li>
-                    
-                        <li>
-                            14 / 2 
-                        </li>
-                    
+                    <% }) %>
                     </ol>
                 </div>
             </p>     
 
         <h3 class="title is-3">Layouts</h1>
 
-        <p style="color: #66cc33">
-    hello 
-</p>
+        <%- include('partial', {msg: 'hello'}); %>
             
 
     </div>

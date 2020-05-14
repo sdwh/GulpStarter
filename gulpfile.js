@@ -14,6 +14,8 @@ const parseArgs = require('minimist');
 const gulpif = require('gulp-if');
 const imagemin = require('gulp-imagemin');
 const merge = require("merge-stream");
+const ejs = require("gulp-ejs");
+const lodash = require("lodash");
 
 const argv = parseArgs(process.argv.slice(2));
 
@@ -33,6 +35,25 @@ gulp.task('pug', () => {
     .pipe(gulp.dest('./dist/'))
     .pipe(browserSync.stream())
 });
+
+gulp.task('ejs', () => {
+  return gulp.src("./source/*.ejs")
+    .pipe(ejs({
+        msg: "Hello Gulp!",
+        boolValue: false,
+        age: 29,
+        lodash : lodash
+    }))
+    .pipe(rename(function (path) {
+      return {
+          dirname: path.dirname,
+          basename: path.basename,
+          extname: '.html'
+      };
+    }))
+    .pipe(gulp.dest("./dist"))
+    .pipe(browserSync.stream())
+})
 
 gulp.task('minifyHtml', () => 
     gulp.src('source/*.html')
@@ -127,6 +148,7 @@ gulp.task('watch', () => {
     });
     gulp.watch('./source/*.html', gulp.series('minifyHtml'));
     gulp.watch('./source/**/*.pug', gulp.series('pug'));
+    gulp.watch('./source/**/*.ejs', gulp.series('ejs'));
     gulp.watch('./source/**/*.scss', gulp.series('sass'));
 });
 
@@ -142,6 +164,7 @@ gulp.task('pure', gulp.series(
   'babel',
   'vendors',
   'pug',
+  'ejs',
   'imagemin'
 ));
 

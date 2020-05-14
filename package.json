@@ -29,6 +29,7 @@
     "gulp-babel": "^8.0.0",
     "gulp-clean-css": "^4.3.0",
     "gulp-concat": "^2.6.1",
+    "gulp-ejs": "^5.1.0",
     "gulp-html-replace": "^1.6.2",
     "gulp-htmlmin": "^5.0.1",
     "gulp-if": "^3.0.0",
