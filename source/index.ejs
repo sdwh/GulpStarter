@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('head'); -%>
+<body>
+    
+    <div class="container has-margin-top-30">
+        <h1 class="title is-1 has-text-centered">Gulp Starter Template</h1>
+        <div class="columns">
+            <div class="column">
+                <p>
+                    Lorem ipsum, dolor sit amet consectetur adipisicing elit. Sequi harum accusamus similique aspernatur quae rem provident ipsam! Eaque placeat et quaerat aperiam! Reprehenderit mollitia eligendi, illum ad amet ipsam dicta?
+                </p>
+            </div>
+            <div class="column">
+                <p>
+                    Lorem ipsum, dolor sit amet consectetur adipisicing elit. Sequi harum accusamus similique aspernatur quae rem provident ipsam! Eaque placeat et quaerat aperiam! Reprehenderit mollitia eligendi, illum ad amet ipsam dicta?
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container has-margin-top-20">
+        <h2 class="title is-2">EJS Demo</h1>
+
+        <h3 class="title is-3">Variables</h1>
+        <p> 
+            <%  var msg = "hello, world!" %> 
+            <div>
+                <%= msg %> 
+            </div>
+        </p>
+
+        <h3 class="title is-3">For loop and lodash</h1>
+            <p> 
+                <div>
+                    <% 
+                        var data = lodash.filter(
+                            lodash.range(1, 15),
+                            x => x >= 5
+                        );
+                    %> 
+
+                    <ol>
+                    <% data.forEach(element => { %>
+                        <li>
+                            <%= element %> / <%= lodash.random(1, 6) %> 
+                        </li>
+                    <% }) %>
+                    </ol>
+                </div>
+            </p>     
+
+        <h3 class="title is-3">Layouts</h1>
+
+        <%- include('partial', {msg: 'hello'}); %>
+            
+
+    </div>
+
+
+    <hr />
+
+    <div class="container">
+        <a href="about.html" class="button has-background-danger has-text-white">About</a>
+        <a href="pug.html" class="button has-background-success has-text-white">pug</a>
+    </div>
+    
+    <script src="./js/all.min.js"></script>
+</body>
+</html>
